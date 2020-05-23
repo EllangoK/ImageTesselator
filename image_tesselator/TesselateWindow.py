@@ -1,6 +1,6 @@
 from PySide2.QtCore import Qt
-from PySide2.QtGui import QPalette, QColor, QPixmap, QIcon
-from PySide2.QtWidgets import QApplication, QWidget, QPushButton, QGridLayout, QVBoxLayout, QHBoxLayout, QLabel, QInputDialog, QLineEdit, QFileDialog, QAction
+from PySide2.QtGui import QPalette, QColor, QPixmap, QIcon, QIntValidator
+from PySide2.QtWidgets import QSizePolicy, QLineEdit, QSlider, QApplication, QTabBar, QSizePolicy, QComboBox, QToolButton, QWidget, QPushButton, QGridLayout, QVBoxLayout, QHBoxLayout, QLabel, QInputDialog, QLineEdit, QFileDialog, QAction, QErrorMessage
 import sys
 
 class TesselateWindow(QWidget):
@@ -12,23 +12,53 @@ class TesselateWindow(QWidget):
         self.point_line_pic = QLabel()
         self.tesselated_pic = QLabel()
 
+        self.slider_field = QLineEdit()
+
+        self.generation_type = "Random"
+        self.points = 0
+
         self.initUI()
 
     def initUI(self):
         self.setWindowTitle('Image Tesselator')
-
         layout_container = QHBoxLayout()
 
         menu_layout = QVBoxLayout()
-
         button = QPushButton('Choose Picture')
         button.clicked.connect(self.selectFile)
         menu_layout.addWidget(button)
-        menu_layout.addWidget(QPushButton('Choose Point Generation Choice'))
+
+        generation_layout = QGridLayout()
+        generation_layout.addWidget(QLabel("Generation Types"), 0, 0)
+        generation_type = QComboBox()
+        generation_type.addItems(["Random", "Highest Entropy"])
+        generation_type.activated[str].connect(self.update_generation_type)
+        policy = QSizePolicy()
+        policy.setHorizontalPolicy(QSizePolicy.Expanding)
+        generation_type.setSizePolicy(policy)
+        generation_layout.addWidget(generation_type, 0, 1)
+        menu_layout.addLayout(generation_layout)
+
+        points_layout = QGridLayout()
+        points_layout.addWidget(QLabel("Point Count"), 0, 0)
+        self.slider_field.setAlignment(Qt.AlignCenter)
+        self.slider_field.setValidator(QIntValidator())
+        self.slider_field.textChanged[str].connect(self.update_points_field)
+        self.slider_field.setText("0")
+        points_layout.addWidget(self.slider_field, 0, 1)
+
+        slider = QSlider(Qt.Horizontal)
+        slider.setSingleStep(10)
+        slider.setMinimum(0)
+        slider.setMaximum(1000)
+        slider.valueChanged[int].connect(self.update_points_slider)
+        points_layout.addWidget(slider, 1, 0, 1, 2)
+        
+        menu_layout.addLayout(points_layout)
+
         menu_layout.addWidget(QPushButton('Generate Tesselation'))
 
         picture_viewer = QGridLayout()
-
         pixmap = QPixmap(240,240)
         pixmap.fill(QColor(53, 53, 53))
         self.original_pic.setPixmap(pixmap)
@@ -51,7 +81,7 @@ class TesselateWindow(QWidget):
 
     def dark_theme(self, app):
         app.setStyle('Fusion')
-        
+
         dark_palette = QPalette()
 
         dark_palette.setColor(QPalette.Window, QColor(53, 53, 53))
@@ -76,8 +106,23 @@ class TesselateWindow(QWidget):
         if (file_name == ""):
             pass
         else:
-            pixmap = QPixmap(file_name).scaled(240, 240, Qt.KeepAspectRatio)
-            self.original_pic.setPixmap(pixmap)
+            if file_name.endswith(('.jpg', '.png', '.jpeg')):
+                pixmap = QPixmap(file_name).scaledToWidth(240)
+                self.original_pic.setPixmap(pixmap)
+            else:
+                img_error = QErrorMessage()
+                img_error.showMessage('Oh no!')
+
+    def update_generation_type(self, value):
+        self.generation_type = value
+        print(self.generation_type)
+
+    def update_points_slider(self, value):
+        self.slider_field.setText(str(value))
+        self.points = int(value)
+
+    def update_points_field(self, value):
+        self.points = int(value)
 
 app = QApplication([])
 ex = TesselateWindow()
