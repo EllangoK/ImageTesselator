@@ -1,6 +1,6 @@
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QPalette, QColor, QPixmap, QIcon
-from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QVBoxLayout, QHBoxLayout, QLabel, QInputDialog, QLineEdit, QFileDialog, QAction
+from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QGridLayout, QVBoxLayout, QHBoxLayout, QLabel, QInputDialog, QLineEdit, QFileDialog, QAction
 import sys
 
 class TesselateWindow(QWidget):
@@ -17,27 +17,36 @@ class TesselateWindow(QWidget):
     def initUI(self):
         self.setWindowTitle('Image Tesselator')
 
-        layout = QVBoxLayout()
+        layout_container = QHBoxLayout()
+
+        menu_layout = QVBoxLayout()
 
         button = QPushButton('Choose Picture')
         button.clicked.connect(self.selectFile)
-        layout.addWidget(button)
-        layout.addWidget(QPushButton('Choose Point Generation Choice'))
-        layout.addWidget(QPushButton('Generate Tesselation'))
+        menu_layout.addWidget(button)
+        menu_layout.addWidget(QPushButton('Choose Point Generation Choice'))
+        menu_layout.addWidget(QPushButton('Generate Tesselation'))
 
-        picture_viewer = QHBoxLayout()
-        picture_viewer.addLayout(layout)
+        picture_viewer = QGridLayout()
 
-        pixmap = QPixmap('images/black.jpg').scaled(240, 240, Qt.KeepAspectRatio)
+        pixmap = QPixmap(240,240)
+        pixmap.fill(QColor(53, 53, 53))
         self.original_pic.setPixmap(pixmap)
         self.point_line_pic.setPixmap(pixmap)
         self.tesselated_pic.setPixmap(pixmap)
 
-        picture_viewer.addWidget(self.original_pic)
-        picture_viewer.addWidget(self.point_line_pic)
-        picture_viewer.addWidget(self.tesselated_pic)
+        for i, pic in enumerate([self.original_pic, self.point_line_pic, self.tesselated_pic]):
+            picture_viewer.addWidget(pic, 0, i)
+
+        for i, label in enumerate(["Original", "Chosen Points & Triangles", "Tesselated"]):
+            pic_label = QLabel(label)
+            pic_label.setAlignment(Qt.AlignCenter)
+            picture_viewer.addWidget(pic_label, 1, i)
+
+        layout_container.addLayout(menu_layout)
+        layout_container.addLayout(picture_viewer)
         
-        self.setLayout(picture_viewer)
+        self.setLayout(layout_container)
         self.show()
 
     def dark_theme(self, app):
@@ -64,9 +73,11 @@ class TesselateWindow(QWidget):
 
     def selectFile(self):
         file_name = QFileDialog.getOpenFileName()[0]
-        print(file_name)
-        pixmap = QPixmap(file_name).scaled(240, 240, Qt.KeepAspectRatio)
-        self.original_pic.setPixmap(pixmap)
+        if (file_name == ""):
+            pass
+        else:
+            pixmap = QPixmap(file_name).scaled(240, 240, Qt.KeepAspectRatio)
+            self.original_pic.setPixmap(pixmap)
 
 app = QApplication([])
 ex = TesselateWindow()
