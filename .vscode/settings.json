@@ -1,3 +1,8 @@
 {
-    "python.pythonPath": "P:\\Program Files x64\\Programming\\Python38\\python3.exe"
+    "python.pythonPath": "P:\\Program Files x64\\Programming\\Python38\\python3.exe",
+    "python.linting.pylintEnabled": true,
+    "python.linting.enabled": true,
+    "python.linting.pylintArgs": [
+        "--extension-pkg-whitelist=PySide2"
+    ],
 }

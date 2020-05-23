@@ -1,6 +1,6 @@
-from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QPalette, QColor, QPixmap, QIcon
-from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QGridLayout, QVBoxLayout, QHBoxLayout, QLabel, QInputDialog, QLineEdit, QFileDialog, QAction
+from PySide2.QtCore import Qt
+from PySide2.QtGui import QPalette, QColor, QPixmap, QIcon
+from PySide2.QtWidgets import QApplication, QWidget, QPushButton, QGridLayout, QVBoxLayout, QHBoxLayout, QLabel, QInputDialog, QLineEdit, QFileDialog, QAction
 import sys
 
 class TesselateWindow(QWidget):
